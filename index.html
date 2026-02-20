@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Gastos PRO v0.1.3</title>
+    <title>Mis Gastos PRO v0.1.4</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: sans-serif; background-color: #12141c; color: #e0e0e0; padding: 15px; padding-bottom: 90px; }
@@ -33,8 +33,9 @@
 
         .balance-box { background: linear-gradient(135deg, #1e212b, #2d313f); padding: 25px; border-radius: 20px; border: 1px solid #3d5afe; text-align: center; margin-bottom: 20px; }
         
-        /* DISEÑO DE LA X PARA BORRAR */
-        .delete-btn { color: #ff3b30; font-weight: bold; font-size: 18px; padding: 10px; cursor: pointer; margin-left: 10px; }
+        /* ESTILO DEL TACHO DE BASURA */
+        .delete-btn { color: #ff3b30; font-size: 16px; padding: 10px; cursor: pointer; margin-left: 12px; filter: grayscale(0.3); transition: transform 0.1s; }
+        .delete-btn:active { transform: scale(1.3); filter: grayscale(0); }
         
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: #1e212b; border-radius: 24px; padding: 25px; width: 90%; max-width: 340px; border: 1px solid #2d313f; }
@@ -46,7 +47,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="version-tag">v0.1.3</div>
+        <div class="version-tag">v0.1.4</div>
         <div class="header">
             <h1>Mis Gastos</h1>
             <p id="currentMonth"></p>
@@ -147,9 +148,6 @@
             if(!confirm("¿Borrar este movimiento?")) return;
             if(type === 'inc') incomes = incomes.filter(i => i.id !== id);
             else expenses = expenses.filter(e => e.id !== id);
-            
-            // Si era un pago de categoría, restarlo del current de la categoría (opcional)
-            // Para simplificar, recalculamos todo desde los registros
             localStorage.setItem('expenses', JSON.stringify(expenses));
             localStorage.setItem('incomes', JSON.stringify(incomes));
             renderAll();
@@ -158,7 +156,6 @@
         function renderCategories() {
             let html = '';
             categories.forEach(cat => {
-                // El current se calcula sumando los gastos que tengan el mismo nombre que la categoría
                 let realCurrent = expenses.filter(e => e.type === cat.name).reduce((s,e) => s + e.amount, 0);
                 let pct = cat.goal > 0 ? Math.min(Math.round((realCurrent/cat.goal)*100), 100) : 0;
                 html += `<div class="card" style="padding:15px; margin-bottom:10px;">
@@ -172,17 +169,14 @@
             });
             document.getElementById('categoriesList').innerHTML = html;
             let tGoal = categories.reduce((s,c)=>s+(c.goal||0),0);
-            let tCur = categories.reduce((s,c) => {
-                return s + expenses.filter(e => e.type === c.name).reduce((sum,ex) => sum + ex.amount, 0);
-            }, 0);
+            let tCur = categories.reduce((s,c) => s + expenses.filter(e => e.type === c.name).reduce((sum,ex) => sum + ex.amount, 0), 0);
             document.getElementById('totalPercent').textContent = (tGoal>0?Math.round((tCur/tGoal)*100):0)+'%';
             document.getElementById('totalPaid').textContent = '$'+tCur.toLocaleString();
             document.getElementById('totalGoal').textContent = '$'+tGoal.toLocaleString();
         }
 
         function updateTotals() {
-            const now = new Date(), m = now.getMonth(), y = now.getFullYear();
-            const todayStr = now.toISOString().split('T')[0];
+            const now = new Date(), m = now.getMonth(), y = now.getFullYear(), todayStr = now.toISOString().split('T')[0];
             let incM = incomes.filter(i => { let d=new Date(i.fDate); return d.getMonth()===m && d.getFullYear()===y }).reduce((s,i)=>s+i.amount,0);
             let expM = expenses.filter(e => { let d=new Date(e.fDate); return d.getMonth()===m && d.getFullYear()===y }).reduce((s,e)=>s+e.amount,0);
             document.getElementById('balanceAmount').textContent = '$' + (incM - expM).toLocaleString();
@@ -197,13 +191,12 @@
             let html = '';
             all.slice(0, 25).forEach(m => {
                 let icon = m.type==='GNC'?'⛽':m.type==='Comida'?'🍔':m.type==='Varios'?'📦':m.type==='Didi'?'🟠':'⚫';
-                let d = new Date(m.fDate);
-                let dStr = d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+                let d = new Date(m.fDate), dStr = d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
                 html += `<div class="history-item">
                     <div class="history-info"><div>${icon} ${m.type}</div><small>${dStr} hs</small></div>
                     <div style="display:flex; align-items:center;">
                         <div style="font-weight:700; color:${m.k==='inc'?'#34c759':'#ff6b6b'}">${m.k==='inc'?'+':'-'}$${m.amount.toLocaleString()}</div>
-                        <div class="delete-btn" onclick="deleteItem(${m.id}, '${m.k}')">×</div>
+                        <div class="delete-btn" onclick="deleteItem(${m.id}, '${m.k}')">🗑️</div>
                     </div>
                 </div>`;
             });
@@ -220,21 +213,15 @@
         function confirmAction() {
             let amt = parseFloat(document.getElementById('modalAmount').value);
             if(isNaN(amt) || amt <= 0) return;
-            let now = new Date();
-            let fDate = document.getElementById('modalDate').value + 'T' + now.toTimeString().split(' ')[0];
-
+            let now = new Date(), fDate = document.getElementById('modalDate').value + 'T' + now.toTimeString().split(' ')[0];
             if(currentType==='category') {
                 categories.push({id:Date.now(), name:document.getElementById('modalName').value || 'S/N', goal:amt, current:0});
                 localStorage.setItem('categories', JSON.stringify(categories));
             } else if(currentType==='payment') {
                 let c = categories.find(x=>x.id===currentId);
                 if(c) { expenses.push({id:Date.now(), type:c.name, amount:amt, fDate:fDate}); }
-            } else if(currentType==='income') {
-                incomes.push({id:Date.now(), type:currentId, amount:amt, fDate:fDate});
-            } else if(currentType==='expense') {
-                expenses.push({id:Date.now(), type:currentId, amount:amt, fDate:fDate});
-            }
-            
+            } else if(currentType==='income') incomes.push({id:Date.now(), type:currentId, amount:amt, fDate:fDate});
+            else if(currentType==='expense') expenses.push({id:Date.now(), type:currentId, amount:amt, fDate:fDate});
             localStorage.setItem('expenses', JSON.stringify(expenses));
             localStorage.setItem('incomes', JSON.stringify(incomes));
             closeModal(); renderAll();
@@ -247,7 +234,7 @@
                 csv += `${d.toLocaleDateString()},${d.toLocaleTimeString()},${r.k},${r.type},${r.amount}\n`;
             });
             let blob = new Blob([csv], {type:'text/csv'});
-            let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Mis_Gastos_PRO.csv'; a.click();
+            let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Gastos.csv'; a.click();
         }
         init();
     </script>
