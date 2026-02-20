@@ -41,13 +41,13 @@
         .section-title { color: white; margin: 20px 0 10px; font-size: 16px; text-align: center; }
         .progress-circle { background: white; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; }
         .circle-percent { font-size: 32px; font-weight: bold; color: #667eea; }
-        .balance-box { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
-        .balance-amount { font-size: 28px; font-weight: bold; }
+        .balance-box { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
+        .balance-amount { font-size: 24px; font-weight: bold; }
         .income-grid, .daily-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .income-card { background: linear-gradient(135deg, #ff9500, #ff6b00); color: white; padding: 15px; border-radius: 10px; text-align: center; }
+        .income-card { background: linear-gradient(135deg, #ff9500, #ff6b00); color: white; padding: 12px; border-radius: 10px; text-align: center; }
         .income-card.uber { background: linear-gradient(135deg, #1a1a1a, #333); }
-        .daily-card { background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; }
-        .btn { padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 8px; }        .btn-orange { background: linear-gradient(135deg, #ff9500, #ff6b00); color: white; }
+        .daily-card { background: #f8f9fa; padding: 12px; border-radius: 10px; text-align: center; }
+        .btn { padding: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 8px; font-size: 14px; }        .btn-orange { background: linear-gradient(135deg, #ff9500, #ff6b00); color: white; }
         .btn-black { background: linear-gradient(135deg, #1a1a1a, #333); color: white; }
         .btn-red { background: #e74c3c; color: white; }
         .btn-yellow { background: #f39c12; color: white; }
@@ -59,7 +59,7 @@
         .modal input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin: 10px 0; }
         .modal-buttons { display: flex; gap: 8px; }
         .modal button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .category-card { background: white; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+        .category-card { background: white; border-radius: 10px; padding: 8px; margin-bottom: 10px; }
         .history-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; }
     </style>
 </head>
@@ -213,7 +213,7 @@
             all.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
             var html = '';
             all.forEach(function(m){
-                var icon = m.category==='GNC'?'⛽':m.category==='Comida'?'🍔':m.category==='Varios'?'📦':m.category==='Didi'?'🟠':'⚫';
+                var icon = m.category==='GNC'?'⛽':m.category==='Comida'?'🍔':m.category==='Varios'?'📦':m.category==='Didi'?'🟠':'';
                 var color = m.kind==='income'?'#27ae60':'#e74c3c';
                 html += '<div class="history-item"><div>'+icon+' '+m.category+'<br><small style="color:#7f8c8d;">'+new Date(m.date).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})+'</small></div><div style="color:'+color+';font-weight:bold;">'+(m.kind==='income'?'+':'-')+'$'+m.amount.toLocaleString()+' <button onclick="deleteItem(\''+m.kind+'\',\''+m.id+'\')" style="background:#e74c3c;color:white;border:none;padding:2px 6px;border-radius:4px;cursor:pointer;">X</button></div></div>';
             });
