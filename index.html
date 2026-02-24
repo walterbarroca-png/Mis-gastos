@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Gastos PRO v0.1.7</title>
+    <title>Mis Gastos PRO v0.1.8</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: sans-serif; background-color: #12141c; color: #e0e0e0; padding: 15px; padding-bottom: 90px; }
@@ -51,7 +51,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="version-tag">v0.1.7</div>
+        <div class="version-tag">v0.1.8</div>
         <div class="header">
             <h1>Mis Gastos</h1>
             <p id="currentMonth"></p>
@@ -233,6 +233,7 @@
             saveAndRefresh();
         }
 
+        function openCategoryModal() { currentType='category'; resetModal(); document.getElementById('modalTitle').textContent='Nueva Categoría'; document.getElementById('modalName').style.display='block'; document.getElementById('modalDate').style.display='none'; document.getElementById('modal').style.display='flex'; }
         function openEditCategory(id) { currentId=id; currentType='edit_category'; resetModal(); let cat=categories.find(c=>c.id===id); document.getElementById('modalTitle').textContent='Editar Categoría'; document.getElementById('modalName').style.display='block'; document.getElementById('modalName').value=cat.name; document.getElementById('modalAmount').value=cat.goal; document.getElementById('modalDate').style.display='none'; document.getElementById('modalExtraBtns').innerHTML=`<button class="btn btn-gnc" onclick="deleteCategory(${id})">Borrar Categoría</button>`; document.getElementById('modal').style.display='flex'; }
         function openPaymentModal(id) { currentId=id; currentType='payment'; resetModal(); document.getElementById('modalTitle').textContent='Registrar Pago'; document.getElementById('modalDate').style.display='none'; document.getElementById('modal').style.display='flex'; }
         function openIncomeModal(t) { currentId=t; currentType='income'; resetModal(); document.getElementById('modalTitle').textContent='Ingreso '+t; document.getElementById('modal').style.display='flex'; }
